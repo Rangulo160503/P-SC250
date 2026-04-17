@@ -1,0 +1,165 @@
+{# Panel EDA: en hub (hub_panel) solo insights; en página completa incluye distribuciones embebidas y descargas. #}
+{% if eda_ready %}
+<section class="ms-section eda-block" aria-label="Resumen del dataset">
+    <h2 class="ms-section-title">Resumen</h2>
+    <div class="eda-summary-grid">
+        <div class="eda-card">
+            <span class="eda-card-label">Registros</span>
+            <span class="eda-card-value">{{ eda_summary_rows }}</span>
+        </div>
+        <div class="eda-card">
+            <span class="eda-card-label">Periodo</span>
+            <span class="eda-card-value eda-card-value--sm">{{ eda_summary_period or "—" }}</span>
+        </div>
+        <div class="eda-card">
+            <span class="eda-card-label">Tipo dominante</span>
+            <span class="eda-card-value eda-card-value--sm">{{ eda_summary_kind or "—" }}</span>
+        </div>
+    </div>
+</section>
+
+<section class="ms-section eda-block eda-block--findings" aria-label="Hallazgos principales">
+    <h2 class="ms-section-title">Hallazgos principales</h2>
+    {% if eda_findings %}
+    <ul class="eda-finding-list">
+        {% for line in eda_findings %}
+        <li>{{ line }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">No se generaron frases automáticas con las columnas disponibles.</p>
+    {% endif %}
+</section>
+
+{% if hub_panel|default(false) %}
+{% if eda_top_delitos %}
+<section class="ms-section eda-block" aria-label="Distribución de delitos">
+    <h2 class="ms-section-title">Distribución (delitos)</h2>
+    <p class="ms-muted mb-2">Participación aproximada de las categorías más frecuentes.</p>
+    <span class="eda-dist-title" style="display:block;font-weight:600;margin-bottom:0.35rem;">{{ eda_dist_delitos.title }}</span>
+    <ul class="eda-mini-ranks">
+        {% for row in eda_top_delitos %}
+        <li><span class="eda-mini-name">{{ row.name }}</span> <span class="eda-mini-pct">{{ row.pct }}%</span></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+{% else %}
+<section class="ms-section eda-block" aria-label="Distribuciones y gráficos">
+    <h2 class="ms-section-title">Distribuciones</h2>
+    <p class="ms-muted mb-3">Cada gráfico se abre aquí (acordeón); no se abren pestañas nuevas.</p>
+    <style>
+        .eda-chart-acc {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.65rem;
+            background: var(--bg);
+        }
+        .eda-chart-acc summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            padding: 0.65rem 1rem;
+            color: var(--primary);
+            list-style: none;
+        }
+        .eda-chart-acc summary::-webkit-details-marker { display: none; }
+        .eda-chart-acc[open] summary {
+            border-bottom: 1px solid var(--border);
+        }
+        .eda-chart-acc-body { padding: 0.75rem 1rem 1rem; }
+        .eda-chart-iframe {
+            display: block;
+            width: 100%;
+            height: 420px;
+            border: 0;
+            border-radius: 4px;
+            background: var(--table-header-bg);
+        }
+    </style>
+    <ul class="eda-dist-list" style="list-style:none;padding-left:0;margin-bottom:1rem;">
+        <li class="eda-dist-row" style="margin-bottom:0.5rem;">
+            <span class="eda-dist-title" style="display:block;font-weight:600;margin-bottom:0.35rem;">{{ eda_dist_delitos.title }}</span>
+            {% if eda_top_delitos %}
+            <ul class="eda-mini-ranks">
+                {% for row in eda_top_delitos %}
+                <li><span class="eda-mini-name">{{ row.name }}</span> <span class="eda-mini-pct">{{ row.pct }}%</span></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if eda_dist_delitos.chart_file and eda_dist_delitos.embed_token %}
+            <details class="eda-chart-acc">
+                <summary>Ver gráfico</summary>
+                <div class="eda-chart-acc-body">
+                    <iframe class="eda-chart-iframe" title="{{ eda_dist_delitos.title }}" loading="lazy" src="about:blank" data-src="{{ url_for('charts_html_embed', run_id=current_run_id, token=eda_dist_delitos.embed_token) }}"></iframe>
+                </div>
+            </details>
+            {% else %}
+            <span class="ms-muted eda-chart-missing">Sin gráfico en artefactos</span>
+            {% endif %}
+        </li>
+        <li class="eda-dist-row" style="margin-bottom:0.5rem;">
+            <span class="eda-dist-title" style="display:block;font-weight:600;margin-bottom:0.35rem;">{{ eda_dist_provincia.title }}</span>
+            {% if eda_dist_provincia.chart_file and eda_dist_provincia.embed_token %}
+            <details class="eda-chart-acc">
+                <summary>Ver gráfico</summary>
+                <div class="eda-chart-acc-body">
+                    <iframe class="eda-chart-iframe" title="{{ eda_dist_provincia.title }}" loading="lazy" src="about:blank" data-src="{{ url_for('charts_html_embed', run_id=current_run_id, token=eda_dist_provincia.embed_token) }}"></iframe>
+                </div>
+            </details>
+            {% else %}
+            <span class="ms-muted eda-chart-missing">Sin gráfico en artefactos</span>
+            {% endif %}
+        </li>
+        <li class="eda-dist-row" style="margin-bottom:0.5rem;">
+            <span class="eda-dist-title" style="display:block;font-weight:600;margin-bottom:0.35rem;">{{ eda_dist_sexo.title }}</span>
+            {% if eda_dist_sexo.chart_file and eda_dist_sexo.embed_token %}
+            <details class="eda-chart-acc">
+                <summary>Ver gráfico</summary>
+                <div class="eda-chart-acc-body">
+                    <iframe class="eda-chart-iframe" title="{{ eda_dist_sexo.title }}" loading="lazy" src="about:blank" data-src="{{ url_for('charts_html_embed', run_id=current_run_id, token=eda_dist_sexo.embed_token) }}"></iframe>
+                </div>
+            </details>
+            {% else %}
+            <span class="ms-muted eda-chart-missing">Sin gráfico en artefactos</span>
+            {% endif %}
+        </li>
+    </ul>
+    <p class="mb-0"><a href="{{ url_for('show_charts') }}" class="ms-link">Todas las visualizaciones</a></p>
+    <script>
+    (function () {
+        document.querySelectorAll(".eda-chart-acc").forEach(function (d) {
+            d.addEventListener("toggle", function () {
+                if (!d.open) return;
+                var iframe = d.querySelector("iframe.eda-chart-iframe[data-src]");
+                if (iframe && (!iframe.getAttribute("src") || iframe.getAttribute("src") === "about:blank")) {
+                    iframe.setAttribute("src", iframe.getAttribute("data-src") || "");
+                }
+            });
+        });
+    })();
+    </script>
+</section>
+{% endif %}
+
+{% if eda_alerts %}
+<section class="ms-section eda-block eda-block--alerts" aria-label="Alertas de calidad de datos">
+    <h2 class="ms-section-title">Alertas</h2>
+    <ul class="eda-alert-list">
+        {% for a in eda_alerts %}
+        <li>{{ a }}</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{% if (not hub_panel|default(false)) and eda_meta_download_ok %}
+<section class="ms-section eda-block eda-block--downloads" aria-label="Metadatos del run">
+    <h2 class="ms-section-title">Metadatos del run</h2>
+    <p class="ms-muted mb-0">JSON exportado por el pipeline (parámetros y resumen de ejecución). El pronóstico tabular y la evaluación de modelos están en el <strong>reporte final</strong> y en <strong>Evaluación de modelos</strong>.</p>
+    <p class="mb-0 mt-2">
+        <a href="{{ url_for('download_run_file', run_id=current_run_id, filename='meta.json') }}" class="ms-link">Descargar meta.json</a>
+    </p>
+</section>
+{% endif %}
+{% endif %}

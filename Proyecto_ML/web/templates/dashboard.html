@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Reporte final{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 6 — Reporte final.</strong> Resumen orientado a decisión: cobertura del dataset, modelo elegido y pronóstico a corto plazo con banda de referencia. Para detalle de exploración o gráficos adicionales: <a href="{{ url_for('results') }}" class="ms-link">análisis exploratorio</a>, <a href="{{ url_for('show_charts') }}" class="ms-link">visualizaciones</a> y <a href="{{ url_for('show_metrics') }}" class="ms-link">evaluación de modelos</a>.</p>
+{% endblock %}
+{% block head_extra %}
+{% include "partials/_dashboard_styles.html" %}
+{% endblock %}
+{% block content %}
+{% include "partials/dashboard_content.html" %}
+{% endblock %}

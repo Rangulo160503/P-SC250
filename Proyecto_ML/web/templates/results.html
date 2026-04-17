@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Análisis exploratorio{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 4 — Análisis exploratorio.</strong> Resumen legible del <code>data_limpia</code> de este run: qué cubren los datos, qué destaca y posibles alertas. Para correlaciones y reporte extendido use <a href="{{ url_for('show_types') }}" class="ms-link">tipos</a>, <a href="{{ url_for('show_charts') }}" class="ms-link">visualizaciones</a> y el <a href="{{ url_for('dashboard') }}" class="ms-link">dashboard</a>.</p>
+{% endblock %}
+{% block head_extra %}
+{% include "partials/_results_eda_styles.html" %}
+{% endblock %}
+{% block content %}
+{% include "partials/eda_content.html" %}
+{% endblock %}
+{% block scripts %}
+{% include "partials/_eda_scripts.html" %}
+{% endblock %}

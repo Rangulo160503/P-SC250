@@ -1,0 +1,12 @@
+﻿# DATOS (NO SUBIR)
+data/
+artifacts/
+*.db
+*.csv
+
+# PYTHON
+__pycache__/
+*.pyc
+
+# HISTORIAL
+web/run_history.json

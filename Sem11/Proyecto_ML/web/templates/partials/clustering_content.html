@@ -1,0 +1,73 @@
+<h1 class="ms-page-title">Agrupamientos por provincia</h1>
+{% if not hub_panel|default(false) %}
+{% include "_analytical_guidance.html" %}
+{% endif %}
+
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay carpetas en <code>artifacts/</code> o la ruta no existe.</p>
+{% elif not cl_has_data %}
+<p class="ms-muted mb-3">No se pudo interpretar el archivo de agrupamiento o no tiene las columnas esperadas.</p>
+{% if (not hub_panel|default(false)) and has_file and clustering_full_table_html %}
+<details class="cl-details" open>
+    <summary>Ver datos exportados</summary>
+    <div class="cl-details-body">
+        <div class="ms-table-wrap">{{ clustering_full_table_html | safe }}</div>
+        <p class="mb-0 mt-2"><a class="ms-link" href="{{ url_for('download_run_file', run_id=run_id, filename='clustering_provincia.csv') }}">Descargar datos</a></p>
+    </div>
+</details>
+{% endif %}
+{% else %}
+
+<section class="ms-section" aria-label="Resumen de grupos">
+    <h2 class="ms-section-title">Qué significa cada grupo</h2>
+    <p class="ms-muted mb-2" style="max-width:40rem;">Los grupos se ordenan del mayor al menor nivel de casos (promedio por provincia en el grupo). Las etiquetas ayudan a leer el mapa sin interpretar números crudos.</p>
+    <div class="cl-card">
+        <ul class="cl-summary-list">
+            {% for row in cl_summary_rows %}
+            <li>
+                <span class="cl-cluster-id">Grupo {{ row.cluster_display }}</span>
+                <span class="cl-tier-name">{{ row.tier }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<section class="ms-section" aria-label="Provincias por nivel">
+    <h2 class="ms-section-title">Provincias por nivel</h2>
+    {% for block in cl_tier_blocks %}
+    <div class="cl-block">
+        <h3 class="ms-section-title" style="font-size:1rem;">{{ block.section_title }}</h3>
+        {% if block.provinces|length %}
+        <p class="cl-prov-line mb-0">{{ block.provinces | join(', ') }}</p>
+        {% else %}
+        <p class="ms-muted mb-0">Ninguna provincia en este nivel.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</section>
+
+<section class="ms-section" aria-label="Lectura rápida">
+    <h2 class="ms-section-title">Lectura rápida</h2>
+    <p class="cl-insight mb-0">{{ cl_insight }}</p>
+</section>
+
+{% if cl_chart_svg %}
+<section class="ms-section" aria-label="Gráfico resumen">
+    <h2 class="ms-section-title">Comparación visual</h2>
+    <div class="cl-chart-wrap">{{ cl_chart_svg | safe }}</div>
+</section>
+{% endif %}
+
+{% if (not hub_panel|default(false)) and clustering_full_table_html %}
+<details class="cl-details">
+    <summary>Ver datos completos</summary>
+    <div class="cl-details-body">
+        <p class="ms-muted mb-2" style="font-size:0.875rem;">Tabla tal como la exporta el pipeline, con una columna añadida solo para esta vista.</p>
+        <div class="ms-table-wrap">{{ clustering_full_table_html | safe }}</div>
+        <p class="mb-0 mt-2"><a class="ms-link" href="{{ url_for('download_run_file', run_id=run_id, filename='clustering_provincia.csv') }}">Descargar datos</a></p>
+    </div>
+</details>
+{% endif %}
+
+{% endif %}

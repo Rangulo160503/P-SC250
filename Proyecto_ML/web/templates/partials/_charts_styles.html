@@ -1,0 +1,137 @@
+<style>
+    .charts-gallery-intro {
+        font-size: 0.9375rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+        max-width: 52rem;
+    }
+    .chart-card--hub {
+        overflow: hidden;
+    }
+    .chart-card--hub .chart-card-panel.is-open {
+        max-height: none;
+    }
+    .chart-card--hub .chart-card-panel-inner {
+        padding: 0;
+    }
+    .chart-card--hub .chart-gallery-iframe {
+        border-radius: 0 0 8px 8px;
+    }
+    .charts-section {
+        margin-bottom: 2rem;
+    }
+    .charts-section-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.75rem 0;
+        padding-left: 0.65rem;
+        border-left: 3px solid var(--chart-section-accent, var(--border-strong));
+    }
+    .charts-section--main { --chart-section-accent: #0078d4; }
+    .charts-section--time { --chart-section-accent: #107c10; }
+    .charts-section--relations { --chart-section-accent: #c19c00; }
+    .charts-section--forecast { --chart-section-accent: #8764b8; }
+    .charts-section--extra { --chart-section-accent: var(--border-strong); }
+    [data-theme="dark"] .charts-section--main { --chart-section-accent: #4cc2ff; }
+    [data-theme="dark"] .charts-section--time { --chart-section-accent: #54b054; }
+    [data-theme="dark"] .charts-section--relations { --chart-section-accent: #e4c84a; }
+    [data-theme="dark"] .charts-section--forecast { --chart-section-accent: #b4a7d6; }
+    .charts-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .chart-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chart-card:hover {
+        border-color: var(--border-strong);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+    [data-theme="dark"] .chart-card:hover {
+        box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+    }
+    .chart-card-inner {
+        padding: 1.1rem 1.25rem;
+    }
+    .chart-card-title {
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 0.35rem 0;
+    }
+    .chart-card-desc {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin: 0 0 1rem 0;
+        line-height: 1.45;
+        max-width: 40rem;
+    }
+    .chart-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .chart-gallery-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        font-family: var(--ms-font);
+        color: var(--primary);
+        background: transparent;
+        border: 1px solid var(--primary);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .chart-gallery-btn:hover {
+        background: var(--outline-hover-bg);
+    }
+    .chart-gallery-btn:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    .chart-card-panel {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.35s ease, opacity 0.25s ease;
+        border-top: 1px solid transparent;
+    }
+    .chart-card-panel.is-open {
+        max-height: 720px;
+        opacity: 1;
+        border-top-color: var(--border);
+    }
+    .chart-card-panel-inner {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+    .chart-gallery-iframe {
+        display: block;
+        width: 100%;
+        height: 580px;
+        border: 0;
+        border-radius: 4px;
+        background: var(--bg);
+    }
+    .charts-source-details {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        background: var(--bg);
+        margin-top: 2rem;
+    }
+    .charts-source-details summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.9375rem;
+    }
+</style>

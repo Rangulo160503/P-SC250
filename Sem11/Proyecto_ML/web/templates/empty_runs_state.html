@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block academic_context %}{% endblock %}
+{% block head_extra %}
+<style>
+    .empty-runs-card {
+        max-width: 32rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.75rem 1.5rem;
+        background: var(--bg);
+        margin-top: 0.5rem;
+    }
+    .empty-runs-lead {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 0.65rem;
+    }
+    .empty-runs-hint {
+        font-size: 0.9375rem;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="ms-page-title">{{ page_title }}</h1>
+{% include "_analytical_guidance.html" %}
+<div class="empty-runs-card">
+    <p class="empty-runs-lead">No hay ejecuciones disponibles</p>
+    <p class="empty-runs-hint">{{ hint }}</p>
+</div>
+{% endblock %}

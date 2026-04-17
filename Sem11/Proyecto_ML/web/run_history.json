@@ -1,0 +1,24 @@
+[
+  {
+    "run_id": "20260415_152911",
+    "nombre": "Ejecuci\u00f3n - 2026-04-15",
+    "timestamp": "2026-04-15T15:29:57.700573",
+    "best_model": "SARIMA (blend) full=(2, 0, 2)/(1, 1, 0, 12)",
+    "wrmse": 492.0088470998332,
+    "artifacts_dir": "20260415_152911",
+    "source_mode": "csv",
+    "source_file": "merged_dataset.csv (3 CSV: 2020-2021.csv, 2022-2023.csv, 2024-2025.csv)",
+    "pipeline_session_id": "9b7ff5d066a64e50b4b149e8d7e987ce"
+  },
+  {
+    "run_id": "20260415_173900",
+    "nombre": "Ejecuci\u00f3n - 2026-04-15",
+    "timestamp": "2026-04-15T17:40:03.682806",
+    "best_model": "SARIMA (blend) full=(2, 0, 2)/(1, 1, 0, 12)",
+    "wrmse": 492.0088470998332,
+    "artifacts_dir": "20260415_173900",
+    "source_mode": "csv",
+    "source_file": "merged_dataset.csv (3 CSV: 2020-2021.csv, 2022-2023.csv, 2024-2025.csv)",
+    "pipeline_session_id": "1f42d5342851414ba501ea3f267f89e2"
+  }
+]

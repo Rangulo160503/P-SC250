@@ -18,4 +18,3 @@ es_verde(cocodrilo).
 es_vegetal(x) :- es_arbol(x).
 es_vegetal(x) :- es_flor(x).
 es_vegetal_verde(A) :- es_vegetal(A),es_verde(A).
-es_vegetal(x) :- es_arbol(x);es_flor(x).

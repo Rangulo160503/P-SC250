@@ -1,0 +1,19 @@
+{% include "partials/_charts_styles.html" %}
+{% include "partials/charts_content.html" %}
+{% include "partials/_charts_scripts.html" %}
+{% if panel_scroll_to %}
+<script>
+(function () {
+    var id = {{ panel_scroll_to|tojson }};
+    function go() {
+        var el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+    requestAnimationFrame(function () {
+        setTimeout(go, 60);
+    });
+})();
+</script>
+{% endif %}

@@ -1,0 +1,81 @@
+<h1 class="ms-page-title">Evaluación de modelos</h1>
+{% if not hub_panel|default(false) %}
+{% include "_analytical_guidance.html" %}
+{% endif %}
+
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay carpetas en <code>artifacts/</code> o la ruta no existe.</p>
+{% elif not mx_has_metrics %}
+<p class="ms-muted mb-3">No hay métricas comparables en este run o el archivo no tiene el formato esperado.</p>
+{% if (not hub_panel|default(false)) and has_file and metrics_full_table_html %}
+<details class="mx-details" open>
+    <summary>Ver tabla exportada</summary>
+    <div class="mx-details-body">
+        <div class="ms-table-wrap">{{ metrics_full_table_html | safe }}</div>
+        <p class="mb-0 mt-2"><a class="ms-link" href="{{ url_for('download_run_file', run_id=run_id, filename='errores_modelos.csv') }}">Descargar resultados</a></p>
+    </div>
+</details>
+{% endif %}
+{% else %}
+
+<section class="ms-section" aria-label="Modelo ganador">
+    <div class="mx-winner">
+        <div class="mx-winner-kicker">Mejor modelo</div>
+        <p class="mx-winner-name mb-0">{{ mx_best_model }}</p>
+        <div class="mx-winner-stats">
+            <div>
+                <div class="mx-stat-label">Error principal (menor es mejor)</div>
+                <div class="mx-stat-value mx-stat-value--lg">{{ mx_best_error_display }}</div>
+            </div>
+            <div>
+                <div class="mx-stat-label">Precisión del ajuste (lectura rápida)</div>
+                <div class="mx-stat-value">{{ mx_precision_level }}</div>
+            </div>
+        </div>
+        <p class="ms-muted mb-0 mt-3" style="font-size:0.8125rem;line-height:1.45;">{{ mx_primary_metric_label }}</p>
+    </div>
+</section>
+
+<section class="ms-section" aria-label="Explicación">
+    <h2 class="ms-section-title" style="font-size:1.05rem;">Por qué este resultado</h2>
+    <p class="mx-explain mb-0">{{ mx_explanation }}</p>
+</section>
+
+<section class="ms-section" aria-label="Comparación de modelos">
+    <h2 class="ms-section-title">Comparación (mejor → peor)</h2>
+    <div class="mx-comp-wrap" role="table" aria-label="Modelos ordenados por error">
+        <div class="mx-comp-head" role="row">
+            <span role="columnheader">Modelo</span>
+            <span role="columnheader" style="text-align:right;">Error</span>
+        </div>
+        {% for row in mx_rows %}
+        <div class="mx-comp-row {% if row.is_best %}mx-comp-row--best{% endif %}" role="row">
+            <div class="mx-model-cell" role="cell">
+                {% if row.is_best %}<span class="mx-badge" title="Menor error">Mejor</span>{% endif %}
+                <span>{{ row.name }}</span>
+            </div>
+            <div class="mx-err-cell" role="cell">{{ row.error }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% if mx_interpretation %}
+<section class="ms-section" aria-label="Interpretación">
+    <h2 class="ms-section-title" style="font-size:1.05rem;">Interpretación</h2>
+    <p class="mx-interpret mb-0">{{ mx_interpretation }}</p>
+</section>
+{% endif %}
+
+{% if (not hub_panel|default(false)) and has_file and metrics_full_table_html %}
+<details class="mx-details">
+    <summary>Ver tabla técnica completa</summary>
+    <div class="mx-details-body">
+        <p class="ms-muted mb-2" style="font-size:0.875rem;">Mismas columnas que exporta el pipeline (todas las métricas por modelo).</p>
+        <div class="ms-table-wrap">{{ metrics_full_table_html | safe }}</div>
+        <p class="mb-0 mt-2"><a class="ms-link" href="{{ url_for('download_run_file', run_id=run_id, filename='errores_modelos.csv') }}">Descargar resultados</a></p>
+    </div>
+</details>
+{% endif %}
+
+{% endif %}

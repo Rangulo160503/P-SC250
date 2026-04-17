@@ -1,0 +1,91 @@
+<style>
+    .cl-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.1rem 1.25rem;
+        background: var(--table-header-bg);
+        margin-bottom: 1rem;
+        max-width: 40rem;
+    }
+    [data-theme="dark"] .cl-card {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .cl-summary-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .cl-summary-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 1rem;
+    }
+    .cl-summary-list li:last-child {
+        border-bottom: 0;
+    }
+    .cl-cluster-id {
+        font-weight: 600;
+        color: var(--muted);
+    }
+    .cl-tier-name {
+        font-weight: 600;
+        color: var(--text);
+        text-align: right;
+    }
+    .cl-block {
+        margin-bottom: 1.35rem;
+        max-width: 44rem;
+    }
+    .cl-block h2 {
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+    .cl-prov-line {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--text);
+    }
+    .cl-insight {
+        max-width: 44rem;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        padding: 0.9rem 1rem;
+        border-left: 3px solid var(--primary);
+        background: var(--table-header-bg);
+        margin-bottom: 1.25rem;
+    }
+    [data-theme="dark"] .cl-insight {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .cl-chart-wrap {
+        max-width: 480px;
+        color: var(--primary);
+        margin-bottom: 1.25rem;
+    }
+    details.cl-details {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        max-width: 56rem;
+        margin-top: 0.5rem;
+    }
+    details.cl-details summary {
+        cursor: pointer;
+        padding: 0.85rem 1rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        color: var(--primary);
+        list-style: none;
+    }
+    details.cl-details summary::-webkit-details-marker {
+        display: none;
+    }
+    details.cl-details[open] summary {
+        border-bottom: 1px solid var(--border);
+    }
+    .cl-details-body {
+        padding: 1rem;
+    }
+</style>

@@ -1,0 +1,21 @@
+<script>
+(function () {
+    document.querySelectorAll("[data-chart-toggle]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var id = this.getAttribute("aria-controls");
+            var panel = document.getElementById(id);
+            if (!panel) return;
+            var iframe = panel.querySelector(".chart-iframe");
+            var open = panel.classList.toggle("is-open");
+            this.setAttribute("aria-expanded", open ? "true" : "false");
+            this.textContent = open ? "Ocultar" : "Ver";
+            if (open && iframe && iframe.dataset.src) {
+                var cur = iframe.getAttribute("src") || "";
+                if (cur === "about:blank" || !cur) {
+                    iframe.src = iframe.dataset.src;
+                }
+            }
+        });
+    });
+})();
+</script>

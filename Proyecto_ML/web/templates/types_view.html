@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Tipos de variables{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 3 — Tipos de variables.</strong> En esta sección se detectan automáticamente los tipos de variables del dataset (numéricas, categóricas, temporales, etc.). Este análisis es utilizado posteriormente para <a href="{{ url_for('show_relations') }}" class="ms-link">relaciones entre variables</a> (correlaciones sobre numéricas) y para contextualizar <a href="{{ url_for('show_charts') }}" class="ms-link">visualizaciones</a> y el <a href="{{ url_for('dashboard') }}" class="ms-link">reporte final</a>.</p>
+{% endblock %}
+{% block content %}
+{% include "partials/types_content.html" %}
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Pronóstico{% endblock %}
+{% block academic_context %}{% endblock %}
+{% block head_extra %}
+<style>
+    .fc-page-focus {
+        max-width: min(72rem, 100%);
+        margin: 0 auto;
+        padding-bottom: 1rem;
+    }
+    .fc-dashboard-row {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 1.25rem;
+        margin-top: 0.75rem;
+    }
+    .fc-dashboard-chart .fc-future-chart-section {
+        margin-bottom: 0;
+    }
+    .fc-dashboard-chart {
+        flex: 7 1 0;
+        min-width: 0;
+        max-width: 70%;
+    }
+    .fc-dashboard-side {
+        flex: 3 1 0;
+        min-width: 0;
+        max-width: 30%;
+        display: flex;
+        flex-direction: column;
+    }
+    .fc-dashboard-row--no-chart .fc-dashboard-side {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+    .fc-values-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        background: var(--table-header-bg);
+        height: fit-content;
+        position: sticky;
+        top: 1rem;
+    }
+    [data-theme="dark"] .fc-values-card {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .fc-values-card__title {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+    .fc-summary-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-width: none;
+    }
+    .fc-summary-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 1.05rem;
+    }
+    .fc-summary-list li:last-child {
+        border-bottom: 0;
+    }
+    .fc-summary-month {
+        font-weight: 600;
+        color: var(--text);
+    }
+    .fc-summary-val {
+        font-variant-numeric: tabular-nums;
+        color: var(--text);
+    }
+    @media (max-width: 900px) {
+        .fc-dashboard-row {
+            flex-direction: column;
+        }
+        .fc-dashboard-chart,
+        .fc-dashboard-side {
+            flex: 1 1 auto;
+            max-width: 100%;
+            width: 100%;
+        }
+        .fc-values-card {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="ms-page-title">Pronóstico futuro</h1>
+
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay carpetas en <code>artifacts/</code> o la ruta no existe.</p>
+{% elif not fc_has_forecast %}
+<p class="ms-muted mb-0">No se encontraron datos de pronóstico para el último run.</p>
+{% else %}
+
+<div class="fc-page-focus">
+<div class="fc-dashboard-row{% if not fc_rows_summary %} fc-dashboard-row--no-chart{% endif %}">
+{% if fc_rows_summary %}
+<div class="fc-dashboard-chart">
+<section class="ms-section fc-future-chart-section" aria-label="Gráfico histórico y pronóstico">
+    <h2 class="ms-section-title">Serie y pronóstico</h2>
+    <script type="application/json" id="fc-chart-config">
+        {
+            "forecast_3m_url": "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_3m.csv') }}",
+            "forecast_3m_int_url": "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_3m_int.csv') }}",
+            "forecast_60m_url": "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_60m.csv') }}",
+            "forecast_60m_int_url": "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_60m_int.csv') }}",
+            "forecastUrls": [
+                "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_3m.csv') }}",
+                "{{ url_for('serve_artifacts', filepath=run_id + '/forecast_3m_int.csv') }}"
+            ],
+            "historyUrls": [
+                "{{ url_for('serve_artifacts', filepath=run_id + '/serie_mensual_total.csv') }}",
+                "{{ url_for('serve_artifacts', filepath=run_id + '/desc_monthly_aggregate.csv') }}"
+            ],
+            "hasForecast60mFile": {{ has_forecast_60m_file|default(false)|tojson }},
+            "runId": {{ run_id|tojson }}
+        }
+    </script>
+    <div class="fc-stocks-card">
+        <p id="fc-horizon-status" class="fc-horizon-status" aria-live="polite">Horizonte seleccionado: 3 meses</p>
+        <div class="forecast-horizon-selector" role="group" aria-label="Horizonte de pronóstico">
+            <button type="button" data-horizon="3m" class="is-active">3 meses</button>
+            {# 5 años: estado inicial hasta que JS confirme datos (no solo flag servidor) #}
+            <button type="button" id="fc-horizon-60m" data-horizon="60m" disabled aria-disabled="true" title="Comprobando horizonte de 5 años…">5 años</button>
+        </div>
+        <div class="fc-stocks-toolbar">
+            <div class="fc-stocks-meta" id="fc-chart-info">
+                <h2 id="fc-chart-value" class="mb-0">—</h2>
+                <span id="fc-chart-date">Cargando…</span>
+                <div id="fc-chart-hint" aria-live="polite"></div>
+            </div>
+            <div class="fc-range-selector" role="group" aria-label="Rango temporal">
+                <button type="button" data-range="7">7D</button>
+                <button type="button" data-range="30">1M</button>
+                <button type="button" data-range="365">1Y</button>
+                <button type="button" data-range="all" class="is-active">Todo</button>
+                <button type="button" class="fc-reset-zoom" id="fc-reset-zoom" title="Restablecer zoom">Reset zoom</button>
+            </div>
+        </div>
+        <div class="fc-stocks-chart-host">
+            <canvas id="fc-stocks-canvas" aria-label="Histórico y pronóstico mensual"></canvas>
+        </div>
+    </div>
+</section>
+</div>
+{% endif %}
+
+<aside class="fc-dashboard-side" aria-label="Valores por mes">
+    <div class="fc-values-card">
+        <h2 class="ms-section-title fc-values-card__title">Valores estimados</h2>
+        {% if fc_rows_summary %}
+        <ul class="fc-summary-list">
+            {% for row in fc_rows_summary %}
+            <li><span class="fc-summary-month">{{ row.label }}</span> <span class="fc-summary-val">{{ row.value }}</span></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</aside>
+</div>
+
+<!-- Tablas completas, descargas CSV y gráfico de evaluación: sección movida a "Ver visualizaciones" -->
+
+</div>
+
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+{% if fc_has_forecast and fc_rows_summary %}
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0/dist/chartjs-plugin-zoom.min.js"></script>
+<script defer src="{{ url_for('static', filename='js/forecast-stocks-chart.js') }}"></script>
+{% endif %}
+{% endblock %}

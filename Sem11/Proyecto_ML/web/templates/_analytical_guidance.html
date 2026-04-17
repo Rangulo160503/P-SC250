@@ -1,0 +1,20 @@
+{% set _act = actions|default([], true) %}
+{% set _msg = guidance_message|default('', true) %}
+{% if _msg or _act %}
+<div class="alert-box analytical-guidance" role="region" aria-label="Guía contextual">
+    {% if _msg %}
+    <p class="analytical-guidance-text mb-0">{{ _msg }}</p>
+    {% endif %}
+    {% if _act %}
+    <div class="actions analytical-guidance-actions">
+        {% for action in _act %}
+        {% if action.set_mode is defined and action.set_mode %}
+        <a href="{{ url_for(action.endpoint, mode=action.set_mode) }}" class="btn-action">{{ action.label }}</a>
+        {% else %}
+        <a href="{{ url_for(action.endpoint) }}" class="btn-action">{{ action.label }}</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}

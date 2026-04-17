@@ -1,0 +1,38 @@
+<script>
+(function () {
+    var toggles = document.querySelectorAll("[data-chart-gallery-toggle]");
+    toggles.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var card = btn.closest("[data-chart-card]");
+            if (!card) return;
+            var panel = card.querySelector("[data-chart-panel]");
+            var iframe = panel ? panel.querySelector(".chart-gallery-iframe") : null;
+            if (!panel) return;
+            var willOpen = !panel.classList.contains("is-open");
+            if (willOpen) {
+                document.querySelectorAll("[data-chart-card]").forEach(function (other) {
+                    if (other === card) return;
+                    var p = other.querySelector("[data-chart-panel]");
+                    var b = other.querySelector("[data-chart-gallery-toggle]");
+                    if (p && p.classList.contains("is-open")) {
+                        p.classList.remove("is-open");
+                        if (b) {
+                            b.setAttribute("aria-expanded", "false");
+                            b.textContent = "Expandir";
+                        }
+                    }
+                });
+            }
+            panel.classList.toggle("is-open", willOpen);
+            btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+            btn.textContent = willOpen ? "Contraer" : "Expandir";
+            if (willOpen && iframe && iframe.dataset.src) {
+                var cur = iframe.getAttribute("src") || "";
+                if (cur === "about:blank" || !cur) {
+                    iframe.src = iframe.dataset.src;
+                }
+            }
+        });
+    });
+})();
+</script>

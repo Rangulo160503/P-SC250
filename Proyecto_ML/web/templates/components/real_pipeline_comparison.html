@@ -1,0 +1,107 @@
+{# Comparación real: CSV en data/ vs data_limpia — una tabla a la vez (pestañas). #}
+{% if real_cmp_raw_records is defined and real_cmp_raw_records and real_cmp_clean_records is defined and real_cmp_clean_records %}
+<div id="real-pipeline-comparison-root" class="data-transform-root">
+<style>
+    #real-pipeline-comparison-root { margin-top: 12px; }
+    #real-pipeline-comparison-root .data-transform-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+    }
+    #real-pipeline-comparison-root .data-transform-tab {
+        font-family: var(--ms-font);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        border-radius: 6px 6px 0 0;
+    }
+    #real-pipeline-comparison-root .data-transform-tab:hover {
+        color: var(--text);
+        background: var(--table-row-hover);
+    }
+    #real-pipeline-comparison-root .data-transform-tab[aria-selected="true"] {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: var(--outline-hover-bg);
+    }
+    #real-pipeline-comparison-root .data-transform-tab:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    #real-pipeline-comparison-root .data-transform-panel-wrap {
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 12px;
+        background: var(--table-header-bg);
+    }
+    [data-theme="dark"] #real-pipeline-comparison-root .data-transform-panel-wrap {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    #real-pipeline-comparison-root .data-transform-panel-wrap h4 {
+        margin: 0 0 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+    #real-pipeline-comparison-root .data-transform-panel { display: none; }
+    #real-pipeline-comparison-root .data-transform-panel.is-active { display: block; }
+    #real-pipeline-comparison-root .ms-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+<div class="data-transform-tabs" role="tablist" aria-label="Comparación pipeline">
+    <button type="button" class="data-transform-tab" role="tab" id="rpc-tab-before" data-rpc-tab="before" aria-selected="true" aria-controls="rpc-panel-before">Antes</button>
+    <button type="button" class="data-transform-tab" role="tab" id="rpc-tab-after" data-rpc-tab="after" aria-selected="false" aria-controls="rpc-panel-after">Después</button>
+</div>
+<div class="data-transform-panel-wrap">
+    <div id="rpc-panel-before" class="data-transform-panel is-active" role="tabpanel" aria-labelledby="rpc-tab-before" data-rpc-panel="before" aria-hidden="false">
+        <h4>Antes — CSV en <code>data/</code></h4>
+        {% if real_cmp_source_name %}
+        <p class="text-secondary mb-2" style="font-size:0.75rem;line-height:1.4;">{{ real_cmp_source_name }} (primeras filas).</p>
+        {% endif %}
+        {% with title='', description='', df_preview=real_cmp_raw_records, preview_columns=real_cmp_raw_columns, show_types=false, preview_compact=true %}
+        {% include "components/dataset_preview.html" %}
+        {% endwith %}
+    </div>
+    <div id="rpc-panel-after" class="data-transform-panel" role="tabpanel" aria-labelledby="rpc-tab-after" data-rpc-panel="after" aria-hidden="true">
+        <h4>Después — salida del pipeline</h4>
+        {% if real_cmp_clean_label %}
+        <p class="text-secondary mb-2" style="font-size:0.75rem;line-height:1.4;"><code>{{ real_cmp_clean_label }}</code> (primeras filas; columnas pueden diferir del CSV crudo).</p>
+        {% endif %}
+        {% with title='', description='', df_preview=real_cmp_clean_records, preview_columns=real_cmp_clean_columns, show_types=false, preview_compact=true %}
+        {% include "components/dataset_preview.html" %}
+        {% endwith %}
+    </div>
+</div>
+<script>
+(function () {
+    var root = document.getElementById("real-pipeline-comparison-root");
+    if (!root) return;
+    var tabs = root.querySelectorAll("[data-rpc-tab]");
+    var panels = root.querySelectorAll("[data-rpc-panel]");
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            var id = tab.getAttribute("data-rpc-tab");
+            tabs.forEach(function (t) {
+                t.setAttribute("aria-selected", t === tab ? "true" : "false");
+            });
+            panels.forEach(function (p) {
+                var on = p.getAttribute("data-rpc-panel") === id;
+                p.classList.toggle("is-active", on);
+                p.setAttribute("aria-hidden", on ? "false" : "true");
+            });
+        });
+    });
+})();
+</script>
+</div>
+{% endif %}

@@ -1,0 +1,7 @@
+<div class="analysis-partial-empty">
+{% if partial_title %}
+<h2 class="ms-section-title" style="margin-top:0">{{ partial_title }}</h2>
+{% endif %}
+<p class="ms-muted mb-2">{{ partial_message|default('No hay una ejecución reciente con artefactos válidos. Ejecutá el procesamiento primero.', true) }}</p>
+<p class="mb-0"><a href="{{ url_for('run') }}" class="ms-link">Ir a procesamiento</a> · <a href="{{ url_for('home') }}" class="ms-link">Carga de datos</a></p>
+</div>

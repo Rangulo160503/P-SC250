@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Visualizaciones{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 5 — Visualizaciones.</strong> Los gráficos generados en el procesamiento apoyan la lectura del <a href="{{ url_for('results') }}" class="ms-link">análisis exploratorio</a> y de los <a href="{{ url_for('show_types') }}" class="ms-link">tipos de variables</a>. También se enlazan desde el <a href="{{ url_for('dashboard') }}" class="ms-link">reporte final</a>.</p>
+{% endblock %}
+{% block head_extra %}
+{% include "partials/_charts_styles.html" %}
+{% endblock %}
+{% block content %}
+{% include "partials/charts_content.html" %}
+{% endblock %}
+{% block scripts %}
+{% include "partials/_charts_scripts.html" %}
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% block title %}Procesamiento de datos{% endblock %}
+{% block head_extra %}{% endblock %}
+{% block academic_context %}{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="ms-alert ms-alert--{{ 'ok' if category == 'success' else 'err' }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<h1 class="ms-page-title run-slim-title">Procesamiento</h1>
+
+{% if not has_csv %}
+<p class="run-no-data"><a href="{{ url_for('home') }}" class="ms-link">Subí al menos un CSV en Carga de datos</a> para poder procesar.</p>
+{% endif %}
+
+<section class="ml-pipeline-board ml-pipeline-board--solo" aria-label="Pasos del modelo">
+    <h2 class="visually-hidden">Así trabaja el modelo</h2>
+    <div class="ml-steps ml-steps--tight" id="ml-pipeline-steps">
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">1</span>
+            <div class="ml-step-body">
+                <h3>1. Carga de datos</h3>
+                <p>Se incorporan los archivos elegidos y se normalizan.</p>
+            </div>
+        </div>
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">2</span>
+            <div class="ml-step-body">
+                <h3>2. Limpieza</h3>
+                <p>Se corrigen errores y datos incompletos.</p>
+            </div>
+        </div>
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">3</span>
+            <div class="ml-step-body">
+                <h3>3. Transformación</h3>
+                <p>Se prepara la serie mensual y agregados para análisis.</p>
+            </div>
+        </div>
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">4</span>
+            <div class="ml-step-body">
+                <h3>4. Entrenamiento</h3>
+                <p>Varios modelos aprenden patrones de la historia.</p>
+            </div>
+        </div>
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">5</span>
+            <div class="ml-step-body">
+                <h3>5. Evaluación</h3>
+                <p>Se mide el acierto en un tramo reservado al final.</p>
+            </div>
+        </div>
+        <div class="ml-step">
+            <span class="ml-step-badge" aria-hidden="true">6</span>
+            <div class="ml-step-body">
+                <h3>6. Predicción hacia adelante</h3>
+                <p>Se generan los meses siguientes al último dato observado.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="run-batch-progress" id="run-batch-progress" hidden aria-live="polite">
+    <p class="run-batch-progress__dataset" id="pipeline-status"></p>
+    <p class="run-batch-progress__phase" id="phase-text"></p>
+</div>
+
+<div class="run-actions-minimal">
+    <button type="button" class="btn-ms-primary btn-ms-lg" id="start-processing"{% if not has_csv %} disabled{% endif %}>Procesar</button>
+</div>
+
+<div class="forecast-result hidden" id="forecast-result-cta">
+    <button type="button" class="primary btn-ms-primary btn-ms-lg" onclick='window.location.href={{ url_for('show_forecast')|tojson }}'>Ver pronóstico</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+    var sleep = function (ms) {
+        return new Promise(function (resolve) {
+            setTimeout(resolve, ms);
+        });
+    };
+
+    function setPhase(phaseIndex, text) {
+        var steps = document.querySelectorAll("#ml-pipeline-steps .ml-step");
+        steps.forEach(function (el, i) {
+            el.classList.toggle("active", i === phaseIndex);
+            el.classList.toggle("done", i < phaseIndex);
+        });
+        var pt = document.getElementById("phase-text");
+        if (pt) {
+            pt.textContent = text;
+        }
+    }
+
+    function markAllPhasesDone() {
+        var steps = document.querySelectorAll("#ml-pipeline-steps .ml-step");
+        steps.forEach(function (el) {
+            el.classList.remove("active");
+            el.classList.add("done");
+        });
+    }
+
+    function resetPhasesVisual() {
+        var steps = document.querySelectorAll("#ml-pipeline-steps .ml-step");
+        steps.forEach(function (el) {
+            el.classList.remove("active", "done");
+        });
+        var pt = document.getElementById("phase-text");
+        if (pt) {
+            pt.textContent = "";
+        }
+    }
+
+    function disableStartButton(btn) {
+        if (btn) {
+            btn.disabled = true;
+            btn.setAttribute("aria-busy", "true");
+        }
+    }
+
+    function enableStartButton(btn) {
+        if (btn) {
+            btn.disabled = false;
+            btn.removeAttribute("aria-busy");
+        }
+    }
+
+    function showForecastResultCta() {
+        var el = document.querySelector(".forecast-result");
+        if (el) {
+            el.classList.remove("hidden");
+        }
+    }
+
+    async function runMergedMlPipeline() {
+        var messages = [
+            "Cargando datos…",
+            "Limpiando…",
+            "Transformando…",
+            "Entrenando modelos…",
+            "Evaluando…",
+            "Generando pronóstico…"
+        ];
+        var stopSpin = false;
+        async function phaseSpin() {
+            var i = 0;
+            while (!stopSpin) {
+                setPhase(i % 6, messages[i % 6]);
+                await sleep(400);
+                i += 1;
+            }
+        }
+        var spinPromise = phaseSpin();
+        try {
+            var res = await fetch("/api/run/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ merge_all: true }),
+                credentials: "same-origin"
+            });
+            var data = await res.json().catch(function () {
+                return { ok: false, error: "No se pudo leer la respuesta JSON." };
+            });
+            if (!res.ok || !data.ok) {
+                throw new Error(data.error || ("HTTP " + res.status));
+            }
+            return data;
+        } finally {
+            stopSpin = true;
+            await spinPromise.catch(function () {});
+            markAllPhasesDone();
+            setPhase(5, "Dataset listo.");
+        }
+    }
+
+    var startBtn = document.getElementById("start-processing");
+    var progressBox = document.getElementById("run-batch-progress");
+    var hasCsvServer = {{ 'true' if has_csv else 'false' }};
+
+    if (startBtn) {
+        startBtn.addEventListener("click", async function () {
+            disableStartButton(startBtn);
+            var fc = document.querySelector(".forecast-result");
+            if (fc) {
+                fc.classList.add("hidden");
+            }
+            if (progressBox) {
+                progressBox.hidden = false;
+            }
+
+            var dsRes;
+            try {
+                dsRes = await fetch("/api/datasets", { credentials: "same-origin" }).then(function (r) {
+                    return r.json();
+                });
+            } catch (e) {
+                resetPhasesVisual();
+                setPhase(0, "Sin conexión.");
+                var ps = document.getElementById("pipeline-status");
+                if (ps) {
+                    ps.textContent = "No se pudo cargar la lista de archivos.";
+                }
+                enableStartButton(startBtn);
+                return;
+            }
+
+            var datasets = (dsRes && dsRes.datasets) ? dsRes.datasets : [];
+            var sourceNames = datasets
+                .map(function (d) {
+                    return d.name;
+                })
+                .filter(function (n) {
+                    return n && String(n).toLowerCase() !== "merged_dataset.csv";
+                });
+            if (!dsRes.ok || !sourceNames.length) {
+                resetPhasesVisual();
+                setPhase(0, "No hay CSV en data/.");
+                var ps0 = document.getElementById("pipeline-status");
+                if (ps0) {
+                    ps0.textContent = "Nada que ejecutar.";
+                }
+                enableStartButton(startBtn);
+                return;
+            }
+
+            var ps1 = document.getElementById("pipeline-status");
+            if (ps1) {
+                ps1.textContent =
+                    "Fusionando " +
+                    sourceNames.length +
+                    " CSV en un solo dataset → " +
+                    sourceNames.join(", ");
+            }
+            try {
+                await runMergedMlPipeline();
+            } catch (err) {
+                var msg = err && err.message ? err.message : String(err);
+                resetPhasesVisual();
+                setPhase(0, "Error");
+                var ph = document.getElementById("phase-text");
+                if (ph) {
+                    ph.textContent = msg;
+                }
+                enableStartButton(startBtn);
+                return;
+            }
+
+            markAllPhasesDone();
+            setPhase(5, "Procesamiento completado.");
+            var st = document.getElementById("pipeline-status");
+            if (st) {
+                st.textContent =
+                    "Listo: 1 ejecución ML sobre dataset unificado (" + sourceNames.length + " archivo(s) fuente).";
+            }
+            showForecastResultCta();
+            enableStartButton(startBtn);
+        });
+    }
+
+    if (!hasCsvServer && startBtn) {
+        startBtn.disabled = true;
+    }
+})();
+</script>
+{% endblock %}

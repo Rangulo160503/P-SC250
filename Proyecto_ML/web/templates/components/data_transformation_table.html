@@ -1,0 +1,166 @@
+{# Vista previa heurística: una tabla a la vez (pestañas) + resaltado de diferencias. #}
+{% if transform_raw_records is defined and transform_raw_records %}
+<div id="data-transform-table-root" class="data-transform-root">
+<style>
+    .data-transform-root {
+        margin-top: 1.25rem;
+    }
+    .data-transform-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem 1.1rem;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+        align-items: center;
+    }
+    .data-transform-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+    .data-transform-legend i {
+        display: inline-block;
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+    .lg-mod { background: rgba(255, 193, 7, 0.55); }
+    .lg-new { background: rgba(25, 135, 84, 0.55); }
+    .lg-del { background: rgba(108, 117, 125, 0.55); }
+    .lg-muted { background: rgba(108, 117, 125, 0.22); border: 1px solid var(--border); }
+    .data-transform-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0;
+    }
+    .data-transform-tab {
+        font-family: var(--ms-font);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        margin: 0;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        border-radius: 6px 6px 0 0;
+    }
+    .data-transform-tab:hover {
+        color: var(--text);
+        background: var(--table-row-hover);
+    }
+    .data-transform-tab[aria-selected="true"] {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: var(--outline-hover-bg);
+    }
+    .data-transform-tab:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    .data-transform-panel-wrap {
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 12px;
+        background: var(--table-header-bg);
+    }
+    [data-theme="dark"] .data-transform-panel-wrap {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .data-transform-panel-wrap h4 {
+        margin: 0 0 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+    .data-transform-panel {
+        display: none;
+    }
+    .data-transform-panel.is-active {
+        display: block;
+    }
+    .data-transform-root .ms-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .data-transform-root .cell-changed {
+        background: rgba(255, 193, 7, 0.22);
+    }
+    .data-transform-root .cell-new {
+        background: rgba(25, 135, 84, 0.2);
+    }
+    .data-transform-root .cell-removed {
+        background: rgba(108, 117, 125, 0.28);
+        color: var(--muted);
+    }
+    .data-transform-root .cell-muted {
+        color: var(--muted);
+        font-style: italic;
+    }
+    [data-theme="dark"] .data-transform-root .cell-changed {
+        background: rgba(255, 193, 7, 0.14);
+    }
+    [data-theme="dark"] .data-transform-root .cell-new {
+        background: rgba(25, 135, 84, 0.22);
+    }
+    [data-theme="dark"] .data-transform-root .cell-removed {
+        background: rgba(108, 117, 125, 0.22);
+    }
+</style>
+<p class="text-secondary mb-2" style="font-size:0.8125rem;line-height:1.45;max-width:48rem;">
+    Vista previa de limpieza de datos antes de procesar.
+</p>
+<div class="data-transform-legend" aria-label="Leyenda de celdas">
+    <span><i class="lg-mod" aria-hidden="true"></i> Modificado</span>
+    <span><i class="lg-new" aria-hidden="true"></i> Nuevo</span>
+    <span><i class="lg-del" aria-hidden="true"></i> Eliminado / vacío</span>
+    <span><i class="lg-muted" aria-hidden="true"></i> Vacío original</span>
+</div>
+<div class="data-transform-tabs" role="tablist" aria-label="Vista previa de limpieza">
+    <button type="button" class="data-transform-tab" role="tab" id="tf-tab-before" data-tf-tab="before" aria-selected="true" aria-controls="tf-panel-before">Antes</button>
+    <button type="button" class="data-transform-tab" role="tab" id="tf-tab-after" data-tf-tab="after" aria-selected="false" aria-controls="tf-panel-after">Después</button>
+</div>
+<div class="data-transform-panel-wrap">
+    <div id="tf-panel-before" class="data-transform-panel is-active" role="tabpanel" aria-labelledby="tf-tab-before" data-tf-panel="before" aria-hidden="false">
+        <h4>Datos originales</h4>
+        {% with title='', description='', df_preview=transform_raw_records, preview_columns=transform_raw_columns, show_types=false, preview_compact=true, preview_cell_classes=transform_raw_cell_classes %}
+        {% include "components/dataset_preview.html" %}
+        {% endwith %}
+    </div>
+    <div id="tf-panel-after" class="data-transform-panel" role="tabpanel" aria-labelledby="tf-tab-after" data-tf-panel="after" aria-hidden="true">
+        <h4>Datos procesados</h4>
+        {% with title='', description='', df_preview=transform_clean_records, preview_columns=transform_clean_columns, show_types=false, preview_compact=true, preview_cell_classes=transform_clean_cell_classes %}
+        {% include "components/dataset_preview.html" %}
+        {% endwith %}
+    </div>
+</div>
+<script>
+(function () {
+    var root = document.getElementById("data-transform-table-root");
+    if (!root) return;
+    var tabs = root.querySelectorAll("[data-tf-tab]");
+    var panels = root.querySelectorAll("[data-tf-panel]");
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            var id = tab.getAttribute("data-tf-tab");
+            tabs.forEach(function (t) {
+                var on = t === tab;
+                t.setAttribute("aria-selected", on ? "true" : "false");
+            });
+            panels.forEach(function (p) {
+                var on = p.getAttribute("data-tf-panel") === id;
+                p.classList.toggle("is-active", on);
+                p.setAttribute("aria-hidden", on ? "false" : "true");
+            });
+        });
+    });
+})();
+</script>
+</div>
+{% endif %}

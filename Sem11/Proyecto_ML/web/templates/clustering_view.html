@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Agrupamientos por provincia{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 4 — Agrupamientos.</strong> Lectura guiada de los grupos ya calculados por el pipeline (sin reejecutar modelos). Complementa las <a href="{{ url_for('show_charts') }}" class="ms-link">visualizaciones</a>, el <a href="{{ url_for('dashboard') }}" class="ms-link">reporte final</a> y el <a href="{{ url_for('results') }}" class="ms-link">análisis exploratorio</a>.</p>
+{% endblock %}
+{% block head_extra %}
+{% include "partials/_clustering_styles.html" %}
+{% endblock %}
+{% block content %}
+{% include "partials/clustering_content.html" %}
+{% endblock %}

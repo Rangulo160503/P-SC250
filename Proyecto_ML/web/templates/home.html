@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Carga de datos{% endblock %}
+{% block academic_context %}{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="ms-alert ms-alert--{{ 'ok' if category == 'success' else 'err' }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% if message %}
+    <div class="ms-alert ms-alert--{{ 'ok' if status == 'success' else 'err' }} alert-dismissible fade show" role="alert">
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+{% endif %}
+
+<div class="home-slim">
+    <h1 class="ms-page-title home-minimal-title">Carga de datos</h1>
+    <p class="home-page-subtitle text-secondary home-minimal-sub">Subí uno o varios archivos CSV. El procesamiento usará todos los archivos en la carpeta de datos.</p>
+
+    <div
+        id="dataset-app-mount"
+        class="home-minimal"
+        data-list-url="{{ url_for('api_datasets_list') }}"
+        data-active-url="{{ url_for('api_datasets_set_active') }}"
+        data-rename-url="{{ url_for('api_datasets_rename') }}"
+        data-delete-url="{{ url_for('api_datasets_delete') }}"
+        data-upload-url="{{ url_for('api_datasets_upload') }}"
+        data-run-url="{{ url_for('run') }}"
+        data-active-initial="{{ active_csv|e }}"
+    >
+        <div class="home-sidebar-panel home-minimal-panel">
+            <div class="upload-box home-upload-box">
+                <p class="upload-box__title">Subir CSV (uno o varios)</p>
+                <div class="upload-box__row">
+                    <input type="file" name="files" id="dataset-file-input" multiple accept=".csv" class="form-control ms-input-file" aria-label="Elegir uno o varios archivos CSV">
+                    <button type="button" class="btn-ms-outline" id="dataset-upload-btn">Subir</button>
+                </div>
+                <ul id="file-list" class="home-upload-file-list list-unstyled small text-secondary mb-0 mt-2" aria-live="polite"></ul>
+                <div id="upload-progress" class="upload-progress hidden" aria-live="polite">
+                    <div class="upload-progress-bar">
+                        <div id="upload-progress-fill"></div>
+                    </div>
+                    <div id="upload-progress-text" class="upload-progress-text"></div>
+                </div>
+            </div>
+            <p class="sidebar-panel-title home-minimal-files-heading">Archivos en datos</p>
+            <div id="dataset-list-root" class="dataset-list-selector" role="list">
+                <p class="dataset-grid-empty text-secondary">Cargando…</p>
+            </div>
+        </div>
+
+        <div class="data-ready-panel">
+            <h3 class="data-ready-panel__title">Datos listos</h3>
+            <p class="data-ready-panel__text">Los archivos cargados serán utilizados en el procesamiento.</p>
+            <button type="button" id="go-to-process" class="primary btn-ms-primary btn-ms-lg data-ready-panel__cta" disabled>Procesar</button>
+        </div>
+    </div>
+</div>
+
+<noscript>
+    {% if csv_files %}
+    <ul>
+        {% for file in csv_files %}
+        <li><a href="{{ url_for('run') }}?{{ {'dataset': file}|urlencode }}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <form method="post" action="{{ url_for('home') }}" enctype="multipart/form-data" class="mt-2">
+        <input type="file" name="files" multiple accept=".csv" required>
+        <button type="submit" class="btn-ms-outline">Subir</button>
+    </form>
+</noscript>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/datasets_crud.js') }}"></script>
+{% endblock %}

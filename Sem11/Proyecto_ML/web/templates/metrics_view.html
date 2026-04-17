@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Evaluación de modelos{% endblock %}
+{% block academic_context %}
+<p class="academic-context"><strong>Paso 4 — Evaluación de modelos.</strong> Resumen del mejor candidato según los archivos ya generados por el pipeline. Para el <a href="{{ url_for('show_forecast') }}" class="ms-link">pronóstico</a>, el <a href="{{ url_for('dashboard') }}" class="ms-link">reporte final</a> o el <a href="{{ url_for('results') }}" class="ms-link">análisis exploratorio</a>, use el menú.</p>
+{% endblock %}
+{% block head_extra %}
+{% include "partials/_metrics_styles.html" %}
+{% endblock %}
+{% block content %}
+{% include "partials/metrics_content.html" %}
+{% endblock %}

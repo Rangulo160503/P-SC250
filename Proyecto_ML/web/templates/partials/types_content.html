@@ -1,0 +1,169 @@
+<h1 class="ms-page-title">Tipos de variables (último run)</h1>
+{% if not hub_panel|default(false) %}
+{% include "_analytical_guidance.html" %}
+{% endif %}
+
+{% if hub_panel|default(false) %}
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay ejecuciones recientes con carpeta de artefactos válida.</p>
+{% elif not data_source %}
+<p class="ms-muted mb-0">No se encontró el conjunto de datos limpio para este run. Ejecute el pipeline para generar datos limpios.</p>
+{% else %}
+<section class="ms-section" aria-label="Resumen de tipos">
+    <h2 class="ms-section-title">Esquema del conjunto limpio</h2>
+    <p class="mb-2" style="max-width:40rem;line-height:1.55;font-size:0.9375rem;">
+        <strong>{{ summary.total_columnas }}</strong> columnas:
+        <strong>{{ summary.num_numericas }}</strong> numéricas,
+        <strong>{{ summary.num_categoricas }}</strong> categóricas,
+        <strong>{{ summary.num_temporales }}</strong> temporales,
+        <strong>{{ summary.num_booleanas }}</strong> booleanas,
+        <strong>{{ summary.num_ids }}</strong> posibles IDs (alta cardinalidad).
+    </p>
+</section>
+{% if types_null_digest|default([])|length > 0 %}
+<section class="ms-section" aria-label="Columna, tipo y nulos">
+    <h2 class="ms-section-title">Columnas y nulos</h2>
+    <div class="ms-table-wrap" style="max-height:min(70vh,28rem);overflow:auto;">
+        <table class="ms-table" style="font-size:0.875rem;">
+            <thead>
+                <tr>
+                    <th scope="col">Columna</th>
+                    <th scope="col">Tipo inferido</th>
+                    <th scope="col" style="text-align:right;">% nulos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in types_null_digest %}
+                <tr>
+                    <td><code style="font-size:0.8125rem;">{{ row.column }}</code></td>
+                    <td>{{ row.type_label }}</td>
+                    <td style="text-align:right;">{{ row.null_pct }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="ms-muted mb-0 mt-2" style="font-size:0.8125rem;">Los nulos son valores ausentes según pandas (<code>NA</code>). Para listados por categoría y vista completa abra la página <strong>Tipos</strong>.</p>
+</section>
+{% endif %}
+{% endif %}
+{% else %}
+<div class="ms-section" style="margin-bottom:2rem;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:2px;background:var(--bg);">
+    <h2 class="ms-section-title" style="margin-top:0;font-size:1.1rem;">Resumen</h2>
+    <p class="mb-1">Total columnas: <strong>{{ summary.total_columnas }}</strong></p>
+    <p class="mb-1">Numéricas: <strong>{{ summary.num_numericas }}</strong></p>
+    <p class="mb-1">Categóricas: <strong>{{ summary.num_categoricas }}</strong></p>
+    <p class="mb-1">Temporales: <strong>{{ summary.num_temporales }}</strong></p>
+    <p class="mb-1">Booleanas: <strong>{{ summary.num_booleanas }}</strong></p>
+    <p class="mb-0">IDs: <strong>{{ summary.num_ids }}</strong></p>
+</div>
+
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay carpetas en <code>artifacts/</code> o la ruta no existe.</p>
+{% elif not data_source %}
+<p class="ms-muted mb-0">
+    No se encontró <code>data_limpia.csv</code> ni <code>data_limpia.parquet</code> en el run
+    <strong>{{ run_id }}</strong>. Ejecute el pipeline para generar datos limpios.
+</p>
+{% else %}
+<p class="run-meta mb-4">
+    <span class="run-meta__label">Run</span> <span class="run-meta__value">{{ run_id }}</span>
+    <span class="run-meta__sep">·</span>
+    <span class="run-meta__label">Fuente</span>     <span class="run-meta__value">{{ data_source }}</span>
+    <span class="run-meta__sep">·</span>
+    <span class="run-meta__note">La clasificación por tipo se memoriza en memoria por run y modo (recargas rápidas).</span>
+</p>
+{% if types_preview_records %}
+{% set title = "Dataset con clasificación de variables" %}
+{% set description = "Cada variable ha sido clasificada automáticamente sobre el dataset limpio de este run." %}
+{% set df_preview = types_preview_records %}
+{% set preview_columns = types_preview_columns %}
+{% set show_types = true %}
+{% set column_types = tipos %}
+{% include "components/dataset_preview.html" %}
+{% endif %}
+
+{% if types_null_digest|default([])|length > 0 %}
+<section class="ms-section" aria-label="Porcentaje de nulos por columna">
+    <h2 class="ms-section-title">Nulos por columna</h2>
+    <p class="ms-muted mb-2" style="font-size:0.875rem;">Porcentaje de valores ausentes (<code>NA</code>) por variable.</p>
+    <div class="ms-table-wrap" style="max-height:min(75vh,32rem);overflow:auto;">
+        <table class="ms-table" style="font-size:0.875rem;">
+            <thead>
+                <tr>
+                    <th scope="col">Columna</th>
+                    <th scope="col">Tipo inferido</th>
+                    <th scope="col" style="text-align:right;">% nulos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in types_null_digest %}
+                <tr>
+                    <td><code style="font-size:0.8125rem;">{{ row.column }}</code></td>
+                    <td>{{ row.type_label }}</td>
+                    <td style="text-align:right;">{{ row.null_pct }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+
+<section class="ms-section">
+    <h2 class="ms-section-title">Numéricas ({{ tipos.numericas|length }})</h2>
+    {% if tipos.numericas %}
+    <ul class="mb-0">
+        {% for c in tipos.numericas %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">Ninguna columna clasificada como numérica continua/discreta (excluye booleanas e IDs según reglas).</p>
+    {% endif %}
+</section>
+
+<section class="ms-section">
+    <h2 class="ms-section-title">Categóricas ({{ tipos.categoricas|length }})</h2>
+    {% if tipos.categoricas %}
+    <ul class="mb-0">
+        {% for c in tipos.categoricas %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">Sin columnas categóricas (objeto / string / category restantes).</p>
+    {% endif %}
+</section>
+
+<section class="ms-section">
+    <h2 class="ms-section-title">Temporales ({{ tipos.temporales|length }})</h2>
+    {% if tipos.temporales %}
+    <ul class="mb-0">
+        {% for c in tipos.temporales %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">Sin columnas de fecha/hora detectadas.</p>
+    {% endif %}
+</section>
+
+<section class="ms-section">
+    <h2 class="ms-section-title">Booleanas ({{ tipos.booleanas|length }})</h2>
+    {% if tipos.booleanas %}
+    <ul class="mb-0">
+        {% for c in tipos.booleanas %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">Sin columnas booleanas (dtype bool, 0/1, o cadenas típicas true/false).</p>
+    {% endif %}
+</section>
+
+<section class="ms-section">
+    <h2 class="ms-section-title">ID (alta cardinalidad) ({{ tipos.ids|length }})</h2>
+    {% if tipos.ids %}
+    <p class="ms-muted mb-2">Columnas con &gt;90% valores únicos (texto, categoría o enteros; se excluyen flotantes genéricos).</p>
+    <ul class="mb-0">
+        {% for c in tipos.ids %}<li>{{ c }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="ms-muted mb-0">Sin columnas clasificadas como identificadores por cardinalidad.</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endif %}

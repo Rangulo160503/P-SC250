@@ -1,0 +1,160 @@
+<style>
+    .dash-wrap { max-width: 68rem; }
+    .dash-exec-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+        margin-bottom: 2rem;
+    }
+    @media (min-width: 720px) {
+        .dash-exec-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .dash-exec-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.1rem;
+        background: var(--bg);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dash-exec-card:hover {
+        border-color: var(--border-strong);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    [data-theme="dark"] .dash-exec-card:hover {
+        box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+    }
+    .dash-exec-card--wide {
+        grid-column: 1 / -1;
+    }
+    @media (min-width: 720px) {
+        .dash-exec-card--wide { grid-column: span 2; }
+    }
+    .dash-exec-k {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+    }
+    .dash-exec-v {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.35;
+    }
+    .dash-exec-card--insight .dash-exec-v {
+        font-size: 0.98rem;
+        font-weight: 500;
+    }
+    .dash-section {
+        margin-bottom: 2rem;
+    }
+    .dash-section-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.75rem 0;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .dash-findings {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: var(--text);
+        font-size: 0.9375rem;
+        line-height: 1.55;
+    }
+    .dash-findings li { margin-bottom: 0.35rem; }
+    .dash-visual-grid {
+        display: grid;
+        gap: 1.25rem;
+    }
+    @media (min-width: 900px) {
+        .dash-visual-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .dash-visual-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--bg);
+    }
+    .dash-visual-cap {
+        padding: 0.65rem 1rem;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+    }
+    .dash-visual-cap strong {
+        display: block;
+        font-size: 0.9375rem;
+        color: var(--text);
+        margin-bottom: 0.2rem;
+    }
+    .dash-visual-card iframe {
+        display: block;
+        width: 100%;
+        height: 360px;
+        border: 0;
+        background: var(--bg);
+    }
+    .dash-model-box {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.15rem 1.25rem;
+        background: var(--bg);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+    }
+    .dash-model-box p { margin: 0 0 0.5rem; }
+    .dash-model-box p:last-child { margin-bottom: 0; }
+    .dash-fc-rows {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        margin: 0.75rem 0 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+    .dash-fc-rows span { color: var(--muted); font-weight: 500; margin-right: 0.25rem; }
+    .dash-fc-trend {
+        font-size: 0.9375rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+    }
+    .dash-fc-frame {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .dash-fc-frame iframe {
+        display: block;
+        width: 100%;
+        height: 320px;
+        border: 0;
+    }
+    .dash-tech-details {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        background: var(--bg);
+        margin-top: 2.5rem;
+    }
+    .dash-tech-details summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.9375rem;
+    }
+    .dash-tech-details .dash-tech-inner { margin-top: 1.25rem; }
+    .dash-tech-inner h4 {
+        font-size: 0.9rem;
+        margin: 1.25rem 0 0.5rem;
+        color: var(--text);
+    }
+    .dash-tech-inner h4:first-child { margin-top: 0; }
+</style>

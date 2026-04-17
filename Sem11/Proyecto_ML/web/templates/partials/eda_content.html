@@ -1,0 +1,34 @@
+<h1 class="ms-page-title">Análisis exploratorio</h1>
+
+{% if not latest_run or not current_run_id %}
+<p class="ms-muted mb-0">Sin ejecuciones.</p>
+{% else %}
+
+{% include "components/eda_insights_panel.html" %}
+
+{% if not hub_panel|default(false) and chart_paths %}
+<section class="ms-section">
+    <h2 class="ms-section-title">Más gráficos del run</h2>
+    <p class="ms-muted mb-3">Figuras adicionales (embebidas bajo demanda).</p>
+    {% for chart in chart_paths %}
+    {% set panel_id = 'chart-panel-' ~ loop.index0 %}
+    {% set chart_title = chart.replace('.html', '').replace('_', ' ') %}
+    <div class="chart-block">
+        <div class="chart-block-head">
+            <span class="chart-block-title">{{ chart_title }}</span>
+            <button type="button" class="chart-toggle" data-chart-toggle aria-expanded="false" aria-controls="{{ panel_id }}">Ver</button>
+        </div>
+        <div class="chart-panel" id="{{ panel_id }}">
+            <div class="chart-panel-inner">
+                <iframe class="chart-iframe"
+                        title="{{ chart_title }}"
+                        src="about:blank"
+                        data-src="{{ url_for('serve_artifacts', filepath=latest_run_dir + '/' + chart) }}"></iframe>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% endif %}

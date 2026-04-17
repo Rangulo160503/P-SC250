@@ -1,0 +1,85 @@
+<h1 class="ms-page-title">Relaciones entre variables</h1>
+{% if not hub_panel|default(false) %}
+{% include "_analytical_guidance.html" %}
+{% endif %}
+
+{% if not run_id %}
+<p class="ms-muted mb-0">No hay carpetas en <code>artifacts/</code> o la ruta no existe.</p>
+{% elif not data_source %}
+<p class="ms-muted mb-0">No se encontró el conjunto de datos limpio en este run.</p>
+{% else %}
+
+{% if rel_detected|default([])|length > 0 %}
+<section class="ms-section" aria-label="Relaciones detectadas">
+    <h2 class="ms-section-title">Relaciones detectadas</h2>
+    {% for item in rel_detected %}
+    <div class="rel-card">
+        <h3>{{ item.headline }}</h3>
+        <p>{{ item.body }}</p>
+    </div>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if rel_patterns|default([])|length > 0 %}
+<section class="ms-section" aria-label="Patrones observados">
+    <h2 class="ms-section-title">Patrones observados</h2>
+    <ul class="rel-patterns">
+        {% for line in rel_patterns %}
+        <li>{{ line }}</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{% if rel_limitation_text %}
+<section class="ms-section" aria-label="Limitación del análisis">
+    <div class="rel-limit">{{ rel_limitation_text }}</div>
+</section>
+{% endif %}
+
+<section class="ms-section" aria-label="Correlación o vista categórica">
+    <h2 class="ms-section-title">Correlación o vista categórica</h2>
+    {% if has_corr and heatmap_path %}
+    <p class="rel-viz-caption">{{ rel_heatmap_caption or "Vista resumida de cómo se alinean las variables numéricas entre sí." }}</p>
+    <iframe class="rel-heatmap-frame"
+            title="Comparación entre variables numéricas"
+            src="{{ url_for('serve_artifacts', filepath=heatmap_path) }}"></iframe>
+    {% elif rel_cat_chart_svg %}
+    <p class="rel-viz-caption">Barras según volumen de registros por categoría (solo como apoyo visual).</p>
+    <div class="rel-chart-wrap">{{ rel_cat_chart_svg | safe }}</div>
+    {% else %}
+    <p class="ms-muted mb-0">No hay gráfico adicional para mostrar con los datos actuales.</p>
+    {% endif %}
+</section>
+
+{% if (not hub_panel|default(false)) and rel_show_technical_details|default(false) and (corr_table_html or top_pairs) %}
+<details class="rel-details">
+    <summary>Ver detalle numérico</summary>
+    <div class="rel-details-body">
+        <p class="ms-muted mb-2" style="font-size:0.875rem;">Extracto para quien necesite revisar valores puntuales.</p>
+        {% if relation_preview_records|default([])|length > 0 %}
+        {% set title = "Extracto de columnas numéricas" %}
+        {% set description = "" %}
+        {% set df_preview = relation_preview_records %}
+        {% set preview_columns = relation_preview_columns %}
+        {% set show_types = false %}
+        {% include "components/dataset_preview.html" %}
+        {% endif %}
+        {% if top_pairs|default([])|length > 0 %}
+        <h3 class="ms-section-title mt-3" style="font-size:0.95rem;">Pares destacados</h3>
+        <ul>
+            {% for a, b, r in top_pairs %}
+            <li><strong>{{ a }}</strong> y <strong>{{ b }}</strong></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if corr_table_html %}
+        <h3 class="ms-section-title mt-3" style="font-size:0.95rem;">Tabla de apoyo</h3>
+        <div class="ms-table-wrap">{{ corr_table_html | safe }}</div>
+        {% endif %}
+    </div>
+</details>
+{% endif %}
+
+{% endif %}

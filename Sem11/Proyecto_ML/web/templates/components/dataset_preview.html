@@ -1,0 +1,61 @@
+{# Vista tabular compacta del estado del dataset (máx. 10 filas en origen). #}
+{% if df_preview is defined and df_preview %}
+{% set _compact = preview_compact|default(false) %}
+{% set _cols = preview_columns if (preview_columns is defined and preview_columns) else (df_preview[0].keys()|list if df_preview else []) %}
+{% if not _compact %}
+<section class="ms-section dataset-preview-block" aria-label="{{ title|default('Vista previa del dataset', true) }}">
+    {% if title is defined and title %}
+    <h2 class="ms-section-title">{{ title }}</h2>
+    {% endif %}
+    {% if description is defined and description %}
+    <p class="ms-muted mb-3" style="font-size:0.9375rem;max-width:48rem;line-height:1.55;">{{ description }}</p>
+    {% endif %}
+    {% if show_types is defined and show_types and column_types is defined and column_types and _cols %}
+    <p class="text-muted mb-2" style="font-size:0.875rem;"><strong>Clasificación por columna</strong></p>
+    <ul class="mb-3" style="font-size:0.875rem;columns:2;column-gap:2rem;">
+        {% for col in _cols %}
+        <li style="break-inside:avoid;">
+            <strong>{{ col }}</strong>
+            <span class="text-secondary"> →
+                {% if col in column_types.numericas %}numérica
+                {% elif col in column_types.categoricas %}categórica
+                {% elif col in column_types.temporales %}temporal
+                {% elif col in column_types.booleanas %}booleana
+                {% elif col in column_types.ids %}id (alta cardinalidad)
+                {% else %}—{% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% else %}
+<div class="dataset-preview-compact">
+{% endif %}
+    <div class="ms-table-wrap">
+        <table class="ms-table">
+            <thead>
+                <tr>
+                    {% for col in _cols %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in df_preview %}
+                {% set row_i = loop.index0 %}
+                {% set row_flags = preview_cell_classes[row_i] if (preview_cell_classes is defined and preview_cell_classes and row_i < preview_cell_classes|length) else {} %}
+                <tr>
+                    {% for col in _cols %}
+                    <td class="{{ row_flags[col] if (row_flags and col in row_flags) else '' }}">{{ row[col] if col in row else '' }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% if not _compact %}
+</section>
+{% else %}
+</div>
+{% endif %}
+{% endif %}
